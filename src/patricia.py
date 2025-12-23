@@ -88,18 +88,24 @@ class PatriciaTrie:
         def recursive_delete(node, word):
             for edge in list(node.children):
                 child = node.children[edge]
+
                 if word.startswith(edge):
                     suffix = word[len(edge):]
+
                     if suffix == "":
                         child.is_end_of_word = False
-                        if not child.children:
-                            del node.children[edge]
-                        return
                     else:
                         recursive_delete(child, suffix)
-                        if not child.children and not child.is_end_of_word:
-                            del node.children[edge]
+
+                    if not child.children and not child.is_end_of_word:
+                        del node.children[edge]
                         return
-            return
-        
+
+                    if not child.is_end_of_word and len(child.children) == 1:
+                        next_edge, next_child = next(iter(child.children.items()))
+                        node.children[edge + next_edge] = next_child
+                        del node.children[edge]
+
+                    return
+
         recursive_delete(self.root, word)
